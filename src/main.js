@@ -1,5 +1,6 @@
 import { Game } from './game.js';
 import { levels, saveProgress, loadProgress } from './levels.js';
+import { Joystick } from './joystick.js';
 
 // Load saved progress
 loadProgress();
@@ -12,6 +13,8 @@ const hud = document.getElementById('hud');
 const gameOverScreen = document.getElementById('game-over');
 const victoryScreen = document.getElementById('victory-screen');
 const aboutScreen = document.getElementById('about-screen');
+const mobileControls = document.getElementById('mobile-controls');
+const btnMobilePause = document.getElementById('btn-mobile-pause');
 const levelsGrid = document.getElementById('levels-grid');
 
 const scoreDisplay = document.getElementById('score-display');
@@ -42,6 +45,28 @@ const game = new Game(
 
 // State
 let currentLevelId = 1;
+let joystickLeft, joystickRight;
+let leftInput = { x: 0, y: 0 };
+let rightInput = { x: 0, y: 0 };
+
+// Check for touch device
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+if (isTouchDevice) {
+    joystickLeft = new Joystick('joystick-left-zone', 'joystick-left-knob', (x, y) => {
+        leftInput = { x, y };
+        game.setJoystickInput(leftInput, rightInput);
+    });
+
+    joystickRight = new Joystick('joystick-right-zone', 'joystick-right-knob', (x, y) => {
+        rightInput = { x, y };
+        game.setJoystickInput(leftInput, rightInput);
+    });
+    
+    btnMobilePause.addEventListener('click', () => {
+        showScreen(mainMenu);
+    });
+}
 
 // Event Listeners
 window.addEventListener('resize', () => game.resize());
@@ -102,7 +127,14 @@ btnMenuWin.addEventListener('click', () => {
 // Functions
 function showScreen(screen) {
     [mainMenu, levelSelect, aboutScreen, hud, gameOverScreen, victoryScreen].forEach(s => s.classList.add('hidden'));
+    mobileControls.classList.add('hidden');
+    
     screen.classList.remove('hidden');
+    
+    // Show mobile controls only during gameplay (HUD)
+    if (screen === hud && isTouchDevice) {
+        mobileControls.classList.remove('hidden');
+    }
 }
 
 function startGame(levelId) {

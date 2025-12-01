@@ -14,6 +14,9 @@ export class Game {
 
         this.particles = new ParticleSystem();
         
+        this.joystickLeft = { x: 0, y: 0 };
+        this.joystickRight = { x: 0, y: 0 };
+
         this.reset();
     }
 
@@ -46,6 +49,11 @@ export class Game {
 
         // Level config
         this.currentLevel = null;
+    }
+
+    setJoystickInput(left, right) {
+        this.joystickLeft = left;
+        this.joystickRight = right;
     }
 
     startLevel(level) {
@@ -84,22 +92,46 @@ export class Game {
         this.lastTime = timestamp;
 
         // Player Movement
-        if (this.keys['KeyW'] || this.keys['ArrowUp']) this.player.y -= this.player.speed;
-        if (this.keys['KeyS'] || this.keys['ArrowDown']) this.player.y += this.player.speed;
-        if (this.keys['KeyA'] || this.keys['ArrowLeft']) this.player.x -= this.player.speed;
-        if (this.keys['KeyD'] || this.keys['ArrowRight']) this.player.x += this.player.speed;
+        let dx = 0;
+        let dy = 0;
+
+        if (this.keys['KeyW'] || this.keys['ArrowUp']) dy -= 1;
+        if (this.keys['KeyS'] || this.keys['ArrowDown']) dy += 1;
+        if (this.keys['KeyA'] || this.keys['ArrowLeft']) dx -= 1;
+        if (this.keys['KeyD'] || this.keys['ArrowRight']) dx += 1;
+
+        // Joystick Movement
+        dx += this.joystickLeft.x;
+        dy += this.joystickLeft.y;
+
+        // Normalize vector if length > 1 to prevent super speed
+        const len = Math.hypot(dx, dy);
+        if (len > 1) {
+            dx /= len;
+            dy /= len;
+        }
+
+        this.player.x += dx * this.player.speed;
+        this.player.y += dy * this.player.speed;
 
         // Clamp player to screen
         this.player.x = Math.max(this.player.radius, Math.min(this.width - this.player.radius, this.player.x));
         this.player.y = Math.max(this.player.radius, Math.min(this.height - this.player.radius, this.player.y));
 
-        // Player Rotation
-        const dx = this.mouse.x - this.player.x;
-        const dy = this.mouse.y - this.player.y;
-        this.player.angle = Math.atan2(dy, dx);
+        // Player Rotation & Shooting
+        const joyAiming = Math.abs(this.joystickRight.x) > 0.1 || Math.abs(this.joystickRight.y) > 0.1;
+
+        if (joyAiming) {
+            this.player.angle = Math.atan2(this.joystickRight.y, this.joystickRight.x);
+        } else {
+            const mdx = this.mouse.x - this.player.x;
+            const mdy = this.mouse.y - this.player.y;
+            this.player.angle = Math.atan2(mdy, mdx);
+        }
 
         // Shooting
-        if (this.mouseDown && timestamp - this.lastShot > this.shootDelay) {
+        const isShooting = this.mouseDown || joyAiming;
+        if (isShooting && timestamp - this.lastShot > this.shootDelay) {
             this.shoot();
             this.lastShot = timestamp;
         }

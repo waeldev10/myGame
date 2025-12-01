@@ -277,6 +277,22 @@
           </button>
         </div>
       </div>
+      <!-- Mobile Controls -->
+      <div id="mobile-controls" class="hidden absolute inset-0 pointer-events-none z-50 touch-none">
+          <!-- Left Joystick Zone -->
+          <div id="joystick-left-zone" class="absolute bottom-8 left-8 w-32 h-32 pointer-events-auto opacity-50 hover:opacity-100 transition-opacity">
+              <div class="w-full h-full rounded-full border-2 border-white/30 bg-white/10 relative flex items-center justify-center backdrop-blur-sm">
+                  <div id="joystick-left-knob" class="w-12 h-12 rounded-full bg-blue-400/80 shadow-[0_0_15px_rgba(59,130,246,0.5)] absolute transition-transform duration-75"></div>
+              </div>
+          </div>
+
+          <!-- Right Joystick Zone (Aim/Fire) -->
+          <div id="joystick-right-zone" class="absolute bottom-8 right-8 w-32 h-32 pointer-events-auto opacity-50 hover:opacity-100 transition-opacity">
+              <div class="w-full h-full rounded-full border-2 border-red-400/30 bg-red-500/10 relative flex items-center justify-center backdrop-blur-sm">
+                  <div id="joystick-right-knob" class="w-12 h-12 rounded-full bg-red-500/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] absolute transition-transform duration-75"></div>
+              </div>
+          </div>
+      </div>
     </div>
 
     <script type="module" src="./src/main.js"></script>
