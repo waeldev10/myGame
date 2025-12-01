@@ -88,6 +88,12 @@ export class Game {
     update(timestamp) {
         if (!this.isActive) return;
 
+        // Initialize timestamps on first frame
+        if (this.lastTime === 0) {
+            this.lastTime = timestamp;
+            this.enemySpawnTimer = timestamp;
+        }
+
         const dt = timestamp - this.lastTime;
         this.lastTime = timestamp;
 
