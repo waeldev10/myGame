@@ -14,7 +14,6 @@
         color: #ffffff;
         overflow: hidden;
         user-select: none;
-        touch-action: none;
         -webkit-touch-callout: none;
         -webkit-user-select: none;
         position: fixed;
@@ -28,6 +27,7 @@
         top: 0;
         left: 0;
         z-index: 1;
+        touch-action: none;
       }
 
       #ui-layer {
@@ -42,6 +42,13 @@
 
       .interactive {
         pointer-events: auto;
+        touch-action: auto;
+      }
+      
+      .interactive button,
+      .interactive a {
+        touch-action: manipulation;
+        cursor: pointer;
       }
 
       .neon-text {
@@ -52,9 +59,13 @@
       .neon-button {
         transition: all 0.3s ease;
         box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        cursor: pointer;
+        -webkit-tap-highlight-color: rgba(59, 130, 246, 0.3);
+        touch-action: manipulation;
       }
 
-      .neon-button:hover {
+      .neon-button:hover,
+      .neon-button:active {
         box-shadow: 0 0 20px rgba(59, 130, 246, 0.6),
           0 0 40px rgba(59, 130, 246, 0.4);
         transform: scale(1.05);
