@@ -167,14 +167,14 @@ document.addEventListener('DOMContentLoaded', () => {
         levelsGrid.innerHTML = '';
         levels.forEach(level => {
             const div = document.createElement('div');
-            div.className = `p-6 rounded-xl border-2 transition-all duration-300 flex flex-col items-center gap-2 cursor-pointer
+            div.className = `p-4 sm:p-6 rounded-xl border-2 transition-all duration-300 flex flex-col items-center gap-2 cursor-pointer
                 ${level.unlocked 
-                    ? 'border-blue-500 bg-blue-900/20 hover:bg-blue-800/40 hover:scale-105' 
+                    ? 'border-blue-500 bg-blue-900/20 hover:bg-blue-800/40 hover:scale-105 active:scale-95' 
                     : 'border-gray-700 bg-gray-900/50 opacity-50 cursor-not-allowed'}`;
             
             div.innerHTML = `
-                <div class="text-3xl font-bold ${level.unlocked ? 'text-white' : 'text-gray-500'}">${level.id}</div>
-                <div class="text-sm ${level.unlocked ? 'text-blue-300' : 'text-gray-600'}">${level.name}</div>
+                <div class="text-2xl sm:text-3xl font-bold ${level.unlocked ? 'text-white' : 'text-gray-500'}">${level.id}</div>
+                <div class="text-xs sm:text-sm ${level.unlocked ? 'text-blue-300' : 'text-gray-600'} text-center">${level.name}</div>
                 ${!level.unlocked ? '<div class="text-xs text-red-500">مغلق</div>' : ''}
             `;
 
