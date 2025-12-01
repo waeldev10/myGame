@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neon Vector - لعبة احترافية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap");
+
+      body {
+        font-family: "Cairo", sans-serif;
+        background-color: #050505;
+        color: #ffffff;
+        overflow: hidden;
+        user-select: none;
+      }
+
+      canvas {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+
+      #ui-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+        pointer-events: none; /* Let clicks pass through to canvas when playing */
+      }
+
+      .interactive {
+        pointer-events: auto;
+      }
+
+      .neon-text {
+        text-shadow: 0 0 10px rgba(59, 130, 246, 0.8),
+          0 0 20px rgba(59, 130, 246, 0.5);
+      }
+
+      .neon-button {
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+      }
+
+      .neon-button:hover {
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.6),
+          0 0 40px rgba(59, 130, 246, 0.4);
+        transform: scale(1.05);
+      }
+
+      .neon-red {
+        text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+      }
+
+      /* Custom Scrollbar for Level Select */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #111;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #3b82f6;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body class="bg-black text-white h-screen w-screen overflow-hidden">
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- UI Layer -->
+    <div id="ui-layer" class="flex flex-col justify-center items-center">
+      <!-- Main Menu -->
+      <div
+        id="main-menu"
+        class="interactive absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-500"
+      >
+        <h1
+          class="text-8xl font-black mb-8 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600 neon-text tracking-tighter"
+        >
+          NEON VECTOR
+        </h1>
+        <p class="text-xl text-blue-200 mb-12 tracking-widest uppercase">
+          مهمة الفضاء السيبراني
+        </p>
+
+        <div class="flex flex-col gap-4 w-64">
+          <button
+            id="btn-start"
+            class="neon-button bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-lg uppercase tracking-wider"
+          >
+            ابدأ اللعب
+          </button>
+          <button
+            id="btn-levels"
+            class="neon-button bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg uppercase tracking-wider"
+          >
+            المستويات
+          </button>
+          <button
+            id="btn-about"
+            class="neon-button bg-transparent border border-blue-500/30 hover:bg-blue-500/10 text-blue-300 font-bold py-3 px-6 rounded-lg uppercase tracking-wider"
+          >
+            عن اللعبة
+          </button>
+        </div>
+      </div>
+
+      <!-- Level Select -->
+      <div
+        id="level-select"
+        class="interactive hidden absolute inset-0 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md"
+      >
+        <h2 class="text-5xl font-bold mb-10 text-blue-400 neon-text">
+          اختر المستوى
+        </h2>
+
+        <div
+          id="levels-grid"
+          class="grid grid-cols-3 gap-6 mb-10 max-w-4xl p-4"
+        >
+          <!-- Levels will be injected here by JS -->
+        </div>
+
+        <button
+          id="btn-back-levels"
+          class="neon-button bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-8 rounded-lg"
+        >
+          رجوع
+        </button>
+      </div>
+
+      <!-- About Screen -->
+      <div
+        id="about-screen"
+        class="interactive hidden absolute inset-0 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md"
+      >
+        <h2 class="text-5xl font-bold mb-8 text-blue-400 neon-text">
+          عن اللعبة
+        </h2>
+        
+        <div class="max-w-2xl text-center mb-10 space-y-6 text-gray-300 leading-relaxed">
+            <p>
+                <strong class="text-white text-xl">Neon Vector</strong> هي لعبة إطلاق نار فضائية سريعة الوتيرة تعتمد على المهارة وردة الفعل.
+            </p>
+            <p>
+                تم تطوير هذه اللعبة باستخدام تقنيات الويب الحديثة (HTML5 Canvas, Tailwind CSS, Vanilla JS) لتقديم تجربة سلسة وممتعة.
+            </p>
+            <div class="bg-blue-900/20 p-6 rounded-xl border border-blue-500/30">
+                <h3 class="text-blue-300 font-bold mb-2">طريقة اللعب</h3>
+                <ul class="text-sm space-y-2">
+                    <li>استخدم <span class="text-white font-mono bg-gray-800 px-2 py-1 rounded">WASD</span> أو الأسهم للتحرك</li>
+                    <li>استخدم <span class="text-white font-mono bg-gray-800 px-2 py-1 rounded">الماوس</span> للتصويب وإطلاق النار</li>
+                    <li>تجنب الاصطدام بالأعداء وحافظ على درعك</li>
+                </ul>
+            </div>
+            <p class="text-sm text-gray-500">
+                الإصدار 1.0.0
+            </p>
+        </div>
+
+        <button
+          id="btn-back-about"
+          class="neon-button bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-8 rounded-lg"
+        >
+          رجوع
+        </button>
+      </div>
+
+      <!-- HUD (Heads Up Display) -->
+      <div
+        id="hud"
+        class="hidden absolute inset-0 pointer-events-none p-6 flex flex-col justify-between"
+      >
+        <div class="flex justify-between items-start">
+          <div class="flex flex-col">
+            <div class="text-sm text-gray-400 uppercase tracking-widest">
+              النقاط
+            </div>
+            <div
+              id="score-display"
+              class="text-4xl font-mono text-white neon-text"
+            >
+              0
+            </div>
+          </div>
+
+          <div class="flex flex-col items-end">
+            <div class="text-sm text-gray-400 uppercase tracking-widest">
+              المستوى
+            </div>
+            <div id="level-display" class="text-2xl font-bold text-blue-400">
+              1
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-end">
+          <div class="w-64">
+            <div
+              class="flex justify-between text-xs text-gray-400 mb-1 uppercase"
+            >
+              <span>الدرع</span>
+              <span id="health-text">100%</span>
+            </div>
+            <div
+              class="h-2 bg-gray-800 rounded-full overflow-hidden border border-gray-700"
+            >
+              <div
+                id="health-bar"
+                class="h-full bg-gradient-to-r from-green-500 to-blue-500 w-full transition-all duration-200"
+              ></div>
+            </div>
+          </div>
+
+          <div class="text-xs text-gray-500 font-mono">
+            WASD: حركة | MOUSE: تصويب
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Over Screen -->
+      <div
+        id="game-over"
+        class="interactive hidden absolute inset-0 flex flex-col items-center justify-center bg-red-900/20 backdrop-blur-sm"
+      >
+        <h2 class="text-6xl font-black mb-4 text-red-500 neon-red">
+          انتهت اللعبة
+        </h2>
+        <p id="final-score" class="text-2xl text-white mb-8">النقاط: 0</p>
+
+        <div class="flex gap-4">
+          <button
+            id="btn-retry"
+            class="neon-button bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg"
+          >
+            إعادة المحاولة
+          </button>
+          <button
+            id="btn-menu-over"
+            class="neon-button bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg"
+          >
+            القائمة الرئيسية
+          </button>
+        </div>
+      </div>
+
+      <!-- Victory Screen -->
+      <div
+        id="victory-screen"
+        class="interactive hidden absolute inset-0 flex flex-col items-center justify-center bg-green-900/20 backdrop-blur-sm"
+      >
+        <h2 class="text-6xl font-black mb-4 text-green-400 neon-text">
+          مستوى مكتمل!
+        </h2>
+        <p class="text-xl text-green-200 mb-8">تم فتح المستوى التالي</p>
+
+        <div class="flex gap-4">
+          <button
+            id="btn-next-level"
+            class="neon-button bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-lg"
+          >
+            المستوى التالي
+          </button>
+          <button
+            id="btn-menu-win"
+            class="neon-button bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg"
+          >
+            القائمة الرئيسية
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
